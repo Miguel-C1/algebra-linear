@@ -69,8 +69,58 @@ def retrosubstituicao(matriz):
     return solucoes
 
 
+# arquivo: funcoes.py
+
+def classificar_sistema(matriz):
+    linhas = len(matriz)
+    colunas = len(matriz[0])
+
+    quantidade_variaveis = colunas - 1
+
+    rank_coeficientes = 0
+    rank_aumentada = 0
+
+    for linha in matriz:
+
+        coeficientes = linha[:-1]
+
+        termo = linha[-1]
+
+        linha_coef_zero = all(
+            abs(valor) < 0.0001
+            for valor in coeficientes
+        )
+
+        linha_total_zero = linha_coef_zero and (
+            abs(termo) < 0.0001
+        )
+
+        if not linha_coef_zero:
+            rank_coeficientes += 1
+
+        if not linha_total_zero:
+            rank_aumentada += 1
+
+    if rank_coeficientes < rank_aumentada:
+        return "SI"
+
+    if rank_coeficientes < quantidade_variaveis:
+        return "SPI"
+
+    return "SPD"
+
 def resolver_sistema(matriz):
-    triangularizar(matriz)
-    return retrosubstituicao(matriz)
+    matriz_triangular, trocas = triangularizar(matriz)
+
+    classificacao = classificar_sistema(
+        matriz_triangular
+    )
+
+    if classificacao != "SPD":
+        return 0, classificacao
+
+    return retrosubstituicao(
+        matriz_triangular
+    ), classificacao
 
 
