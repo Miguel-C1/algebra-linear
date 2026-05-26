@@ -1,5 +1,3 @@
-# arquivo: validar_testes.py
-
 import numpy as np
 
 from copy import deepcopy
@@ -69,7 +67,7 @@ def validar_sistema(nome, matriz):
     try:
         matriz_copia = deepcopy(matriz)
 
-        meu_resultado = resolver_sistema(
+        meu_resultado, classificacao = resolver_sistema(
             matriz_copia
         )
 
@@ -103,7 +101,10 @@ def validar_sistema(nome, matriz):
             f"Meu resultado : "
             f"{meu_resultado}"
         )
-
+        print(
+            f"Classificação : "
+            f"{classificacao}"
+        )
         print(
             f"Numpy          : "
             f"{numpy_resultado}"
