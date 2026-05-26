@@ -4,7 +4,7 @@ from funcoes import (
     resolver_sistema,
     triangularizar
 )
-
+from test import *
 # Matriz aumentada do sistema
 # Exemplo:
 # 2x + y - z = 8
@@ -28,8 +28,8 @@ imprimir_matriz(matriz_triangular)
 print("Determinante da matriz triangular:", determinante_matriz_triangular(matriz_triangular, trocas))
 print("Número de trocas de linhas:", trocas)
 
-solucao = resolver_sistema(matriz_triangular)
+solucao, classificacao = resolver_sistema(matriz_triangular)
 
 print("Solução do sistema:")
-for i, valor in enumerate(solucao):
-    print(f"x{i + 1} = {valor:.2f}")
+print(f"Solução do sistema: {solucao}")
+print(f"Classificação do sistema: {classificacao}")
