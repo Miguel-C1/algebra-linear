@@ -20,26 +20,52 @@ def somar_linhas(matriz, origem, destino, escalar):
 
 
 def triangularizar(matriz):
-    n = len(matriz)
+    linhas = len(matriz)
+    colunas = len(matriz[0]) - 1
+
     trocas = 0
+    linha_pivo = 0
 
-    for coluna in range(n):
+    for coluna in range(colunas):
 
-        if matriz[coluna][coluna] == 0:
-            for linha in range(coluna + 1, n):
-                if matriz[linha][coluna] != 0:
-                    trocar_linhas(matriz, coluna, linha)
-                    trocas += 1
-                    break
+        melhor_linha = linha_pivo
 
-        pivo = matriz[coluna][coluna]
+        while (
+            melhor_linha < linhas and
+            abs(matriz[melhor_linha][coluna]) < 0.0001
+        ):
+            melhor_linha += 1
 
-        if pivo == 0:
+        if melhor_linha == linhas:
             continue
 
-        for linha in range(coluna + 1, n):
-            fator = -matriz[linha][coluna] / pivo
-            somar_linhas(matriz, coluna, linha, fator)
+        if melhor_linha != linha_pivo:
+            trocar_linhas(
+                matriz,
+                linha_pivo,
+                melhor_linha
+            )
+            trocas += 1
+
+        pivo = matriz[linha_pivo][coluna]
+
+        for linha in range(linha_pivo + 1, linhas):
+
+            fator = (
+                -matriz[linha][coluna] / pivo
+            )
+
+            somar_linhas(
+                matriz,
+                linha_pivo,
+                linha,
+                fator
+            )
+
+        linha_pivo += 1
+
+        if linha_pivo == linhas:
+            break
 
     return matriz, trocas
 
@@ -55,19 +81,38 @@ def determinante_matriz_triangular(matriz, trocas=0):
     return determinante
 
 def retrosubstituicao(matriz):
-    n = len(matriz)
-    solucoes = [0] * n
+    linhas = len(matriz)
+    variaveis = len(matriz[0]) - 1
 
-    for i in range(n - 1, -1, -1):
+    solucoes = [0] * variaveis
+
+    for i in range(linhas - 1, -1, -1):
+
+        coluna_pivo = -1
+
+        for j in range(variaveis):
+            if abs(matriz[i][j]) > 0.0001:
+                coluna_pivo = j
+                break
+
+        if coluna_pivo == -1:
+            continue
+
         soma = 0
 
-        for j in range(i + 1, n):
-            soma += matriz[i][j] * solucoes[j]
+        for j in range(
+            coluna_pivo + 1,
+            variaveis
+        ):
+            soma += (
+                matriz[i][j] * solucoes[j]
+            )
 
-        solucoes[i] = (matriz[i][-1] - soma) / matriz[i][i]
+        solucoes[coluna_pivo] = (
+            matriz[i][-1] - soma
+        ) / matriz[i][coluna_pivo]
 
     return solucoes
-
 
 # arquivo: funcoes.py
 
@@ -110,17 +155,25 @@ def classificar_sistema(matriz):
     return "SPD"
 
 def resolver_sistema(matriz):
-    matriz_triangular, trocas = triangularizar(matriz)
+
+    matriz_triangular, trocas = triangularizar(
+        matriz
+    )
+
+    print("Matriz triangular:")
+    imprimir_matriz(matriz_triangular)
 
     classificacao = classificar_sistema(
         matriz_triangular
     )
 
     if classificacao != "SPD":
-        return 0, classificacao
+        return None, classificacao
 
-    return retrosubstituicao(
+    solucoes = retrosubstituicao(
         matriz_triangular
-    ), classificacao
+    )
+
+    return solucoes, classificacao
 
 

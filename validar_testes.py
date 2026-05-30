@@ -64,11 +64,13 @@ def validar_determinante(nome, matriz):
 # =====================================
 
 def validar_sistema(nome, matriz):
+
     try:
+
         matriz_copia = deepcopy(matriz)
 
-        meu_resultado, classificacao = resolver_sistema(
-            matriz_copia
+        meu_resultado, classificacao = (
+            resolver_sistema(matriz_copia)
         )
 
         matriz_np = np.array(
@@ -79,45 +81,112 @@ def validar_sistema(nome, matriz):
         A = matriz_np[:, :-1]
         B = matriz_np[:, -1]
 
-        numpy_resultado = np.linalg.solve(
-            A,
-            B
+        linhas = len(A)
+        colunas = len(A[0])
+
+        # =====================================
+        # CLASSIFICAÇÃO NUMPY
+        # =====================================
+
+        rank_coeficientes = np.linalg.matrix_rank(A)
+
+        rank_aumentada = np.linalg.matrix_rank(
+            matriz_np
         )
 
-        sucesso = True
+        if rank_coeficientes < rank_aumentada:
+            numpy_classificacao = "SI"
 
-        for i in range(len(meu_resultado)):
-            if abs(
-                meu_resultado[i] -
-                numpy_resultado[i]
-            ) > TOLERANCIA:
+        elif rank_coeficientes < colunas:
+            numpy_classificacao = "SPI"
 
-                sucesso = False
-                break
+        else:
+            numpy_classificacao = "SPD"
 
-        print(f"[{'OK' if sucesso else 'ERRO'}] {nome}")
+        # =====================================
+        # SOLUÇÃO NUMPY
+        # =====================================
 
-        print(
-            f"Meu resultado : "
-            f"{meu_resultado}"
+        numpy_resultado = None
+
+        if numpy_classificacao == "SPD":
+
+            if linhas == colunas:
+
+                numpy_resultado = np.linalg.solve(
+                    A,
+                    B
+                )
+
+            else:
+
+                numpy_resultado = np.linalg.lstsq(
+                    A,
+                    B,
+                    rcond=None
+                )[0]
+
+        # =====================================
+        # COMPARAÇÃO
+        # =====================================
+
+        sucesso = (
+            classificacao ==
+            numpy_classificacao
         )
+
+        if (
+            sucesso and
+            classificacao == "SPD"
+        ):
+
+            for i in range(len(meu_resultado)):
+
+                if abs(
+                    meu_resultado[i] -
+                    numpy_resultado[i]
+                ) > TOLERANCIA:
+
+                    sucesso = False
+                    break
+
+        # =====================================
+        # PRINT
+        # =====================================
+
         print(
-            f"Classificação : "
+            f"[{'OK' if sucesso else 'ERRO'}] "
+            f"{nome}"
+        )
+
+        print(
+            f"Minha classificação : "
             f"{classificacao}"
         )
+
         print(
-            f"Numpy          : "
-            f"{numpy_resultado}"
+            f"Numpy classificação : "
+            f"{numpy_classificacao}"
         )
 
         print()
 
-    except np.linalg.LinAlgError as erro:
-        print(f"[ERRO NUMPY] {nome}")
-        print(f"Numpy informou: {erro}")
-        print()
+        if classificacao == "SPD":
+
+            print(
+                f"Meu resultado : "
+                f"{meu_resultado}"
+            )
+
+            print(
+                f"Numpy          : "
+                f"{numpy_resultado}"
+            )
+
+            print()
 
     except Exception as erro:
+
         print(f"[ERRO] {nome}")
         print(f"Exceção: {erro}")
         print()
@@ -251,3 +320,55 @@ validar_sistema(
     "sistema_pivo_zero",
     sistema_pivo_zero
 )
+
+validar_sistema(
+    "sistema_infinito",
+    sistema_infinitas_solucoes
+)
+
+validar_sistema(
+    "sistema_4x4",
+    sistema_4x4
+)
+
+validar_sistema(
+    "sistema_impossivel",
+    sistema_impossivel
+)
+
+validar_sistema(
+    "sistema_5x3",
+    sistema_5x3
+)
+
+validar_sistema(
+    "sistema_3x5",
+    sistema_3x5
+)
+
+validar_sistema(
+    "sistema_spd",
+    sistema_spd
+)
+
+validar_sistema(
+    "sistema_spi",
+    sistema_spi
+)
+
+validar_sistema(
+    "sistema_si",
+    sistema_si
+)
+
+validar_sistema(
+    "sistema_6x4",
+    sistema_6x4
+)
+
+validar_sistema(
+    "sistema_7x5",
+    sistema_7x5
+)
+
+
